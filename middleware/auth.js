@@ -7,11 +7,11 @@ export default function auth(req, res, next) {
   //get authcookie from request
 
   if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
+    req?.headers.authorization &&
+    req?.headers.authorization.startsWith("Bearer")
   ) {
     //meke [0] element eka thamai "Bearer" [1] ta thamai token eka denne
-    const token = req.headers.authorization.split(" ")[1];
+    const token = req?.headers.authorization.split(" ")[1];
     console.log(token);
     if (token == null) {
       res.send(401).json({

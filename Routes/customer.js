@@ -22,7 +22,7 @@ router.get("/getAll", async (req, res) => {
   }
 });
 
-router.get("/get/:id", async (req, res) => {
+router.get("/get/:id", auth, async (req, res) => {
   const result = await getCustomerById(req.params.id);
   //   res.json(result);
   //   console.log(result);
