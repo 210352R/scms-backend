@@ -2,6 +2,8 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv"; // aluth version nisa ---
 
+import cookieParser from "cookie-parser";
+
 import {
   getAllCustomers,
   getCustomerById,
@@ -22,6 +24,7 @@ router.post("/customer", async (req, res) => {
       //create jwt token
       const token = jwt.sign({ user: username }, "123456");
       //save token in cookie
+      res.cookie("authcookie", token, { httpOnly: true });
       res.json({ ...result, token: token });
       // .cookie("authcookie", token, { maxAge: 900000, httpOnly: true })
     } else {
