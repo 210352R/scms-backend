@@ -31,6 +31,8 @@ export async function getCustomerById(id) {
   }
 }
 
+export async function addCustomerImage() {}
+
 export async function addCustomer(customer) {
   try {
     const query =

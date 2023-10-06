@@ -4,6 +4,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import customerRoutes from "./Routes/customer.js";
+import adminRoutes from "./Routes/admin.js";
+
 import loginRoutes from "./Routes/login.js";
 import orderRoutes from "./Routes/order.js";
 
@@ -27,7 +29,10 @@ import {
   getAllOrdersWithProduts,
   getAllOrdersWithProdutsByID as getOrdersWithProdutsByID,
   getOrderById,
+  addOrder,
+  addOrderProductsByArray,
 } from "./database/orderData.js";
+import { getAllTrainDetails } from "./database/trainData.js";
 
 // create express app ---
 const app = express();
@@ -39,9 +44,14 @@ app.use(bodyParser.json());
 
 app.use(cookieParser());
 
+// for creaate file for upload images --
+app.use(express.static("public"));
+
 app.use("/login", loginRoutes);
 
 app.use("/customer", customerRoutes);
+
+app.use("/admin", adminRoutes);
 
 app.use("/order", orderRoutes);
 
@@ -58,20 +68,33 @@ pool
 
 // methods ---
 
-// loginCoordinater("user1", "password1")
+// const productList = [
+//   {
+//     product_id: "P006",
+//     quantity: 5,
+//   },
+//   {
+//     product_id: "P004",
+//     quantity: 10,
+//   },
+//   {
+//     product_id: "P007",
+//     quantity: 8,
+//   },
+// ];
+// const order = {
+//   customer_id: "Cust036",
+//   delivery_address: "Horana",
+//   route_id: "R006",
+//   state: "new",
+//   products: productList,
+// };
+// getAllTrainDetails()
 //   .then((res) => {
 //     console.log(res);
 //   })
 //   .catch((err) => {
 //     console.log(err);
-//   });
-
-// getAllOrdersWithProduts()
-//   .then((result) => {
-//     console.log("Orders with Products:", result);
-//   })
-//   .catch((error) => {
-//     console.error("Error:", error);
 //   });
 
 const port = process.env.PORT || 8000;

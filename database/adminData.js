@@ -36,3 +36,21 @@ export async function loginAdmin(username, password) {
     return response;
   }
 }
+
+export async function getAdminByUsername(id) {
+  try {
+    const admin = await pool.query("select * from admin where user_name = ?", [
+      id,
+    ]);
+    let result;
+    if (admin[0].length > 0) {
+      result = { sucess: true, admin: admin[0] };
+    } else {
+      result = { sucess: false, err: "No such item Found !" };
+    }
+    //const result = { sucess: true, customer: customer[0] };
+    return result;
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+}

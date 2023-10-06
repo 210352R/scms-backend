@@ -16,22 +16,28 @@ export default function auth(req, res, next) {
     if (token == null) {
       res.send(401).json({
         message: "Not authorized --- ",
+        success: false,
       });
     }
 
     jwt.verify(token, "123456", (err, user) => {
       if (err) {
-        res.status(403).json({
+        res.status(200).json({
           message: "Prohibidden",
+          success: false,
         });
+      } else {
+        console.log("Wade goda -----------");
+        // req.headers['x-custom-header'] = 'CustomHeaderValue';
+        req.user = user; //req ekata user ekenek danawa ---
+        next();
       }
-      console.log("Wade goda -----------");
-      req.user = user; //req ekata user ekenek danawa ---
-      next();
     });
   } else {
-    res.status(401).json({
+    console.log("Hello World ------ ");
+    res.status(200).json({
       message: "Access Denied",
+      success: false,
     });
   }
 }
