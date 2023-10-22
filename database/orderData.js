@@ -1,11 +1,19 @@
 import { pool } from "./database.js";
+import { getProductCapacityById } from "./productData.js";
 
 // Orders okkogemaa okkoma data tika eliyata ganna wa---
 export async function getAllOrders() {
   try {
     const orders = await pool.query("SELECT * FROM cust_order");
-
-    const reult = { sucess: true, orders: orders[0] };
+    const updateOrders = orders[0].map((order) => {
+      const orderDate = order.date;
+      const year = orderDate.getFullYear();
+      const month = String(orderDate.getMonth() + 1).padStart(2, "0"); // Zero-pad the month.
+      const day = String(orderDate.getDate()).padStart(2, "0"); // Zero-pad the day.
+      const orderDateString = `${year}-${month}-${day}`;
+      return { ...order, date: orderDateString };
+    });
+    const reult = { sucess: true, orders: updateOrders };
     return reult;
   } catch (err) {
     return { sucess: false, err: err };
@@ -36,7 +44,7 @@ export async function getOrderById(id) {
 export async function getOrderItemsById(id) {
   try {
     const orderItems = await pool.query(
-      "SELECT o.product_id ,p.name , o.quantity , o.sent_quantity  FROM order_product_list as o INNER JOIN product as p ON p.product_id = o.product_id WHERE order_id = ?",
+      "SELECT o.product_id ,p.name ,p.capacity, o.quantity , o.sent_quantity  FROM order_product_list as o INNER JOIN product as p ON p.product_id = o.product_id WHERE order_id = ?",
       [id]
     );
     if (orderItems[0].length > 0) {
@@ -61,9 +69,45 @@ export async function getAllOrdersWithProduts() {
     // });
     const updatedOrders = await Promise.all(
       orders[0].map(async (item) => {
+        const orderDate = item.date;
+        const year = orderDate.getFullYear();
+        const month = String(orderDate.getMonth() + 1).padStart(2, "0"); // Zero-pad the month.
+        const day = String(orderDate.getDate()).padStart(2, "0"); // Zero-pad the day.
+        const orderDateString = `${year}-${month}-${day}`;
         let products = await getAllOrdersWithProdutsByID(item.order_id);
         //console.log(products);
-        return { ...item, products: products.products };
+        return { ...item, date: orderDateString, products: products.products };
+      })
+    );
+    const reult = { sucess: true, orders: updatedOrders };
+    return reult;
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+}
+
+// get Only new orders and progress orders
+
+export async function getAllNewOrdersWithProduts() {
+  try {
+    const orders = await pool.query(
+      "select order_id, date , customer_id ,  delivery_address , o.route_id ,state , store_id from cust_order as o INNER JOIN route as r ON o. route_id = r.route_id Where state = 'new' OR state = 'progress' ORDER BY state DESC , date ASC"
+    );
+    // orders[0].map(async (item) => {
+    //   let products = await getAllOrdersWithProdutsByID(item.order_id);
+    //   console.log(products);
+    //   return (item = { ...item, products: products.products });
+    // });
+    const updatedOrders = await Promise.all(
+      orders[0].map(async (item) => {
+        const orderDate = item.date;
+        const year = orderDate.getFullYear();
+        const month = String(orderDate.getMonth() + 1).padStart(2, "0"); // Zero-pad the month.
+        const day = String(orderDate.getDate()).padStart(2, "0"); // Zero-pad the day.
+        const orderDateString = `${year}-${month}-${day}`;
+        let products = await getAllOrdersWithProdutsByID(item.order_id);
+        //console.log(products);
+        return { ...item, date: orderDateString, products: products.products };
       })
     );
     const reult = { sucess: true, orders: updatedOrders };
@@ -120,7 +164,7 @@ export async function addOrder({
   delivery_address,
   route_id,
   state,
-  products,
+  products, // list
 }) {
   try {
     const currentDate = new Date();
@@ -209,6 +253,106 @@ export async function getAllOrdersWithProdutsByCustID(id) {
       result = { sucess: false, order: order[0] };
     }
     return result;
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+}
+
+// export async function getOrdersWithNetCapacity(productsArray) {
+//   let netCapacity = 0;
+//   //const res = await getAllOrdersWithProduts();
+//   //const productArray = res.orders[0].products;
+//   const productArray = productsArray;
+//   //console.log("Products Array ---------------: ", productArray);
+//   if (productArray === undefined) {
+//     return 0;
+//   }
+
+//   for (let i = 0; i < productArray?.length; i++) {
+//     //console.log(`Element at index ${i}: ${productArray[i].product_id}`);
+//     const capacity = (await getProductCapacityById(productArray[i].product_id))
+//       .productCapacity.capacity;
+//     //console.log("Capacity : ", capacity);
+//     const quantity = productArray[i].quantity;
+//     const totCapacity = capacity * quantity;
+//     netCapacity = netCapacity + totCapacity;
+//   }
+//   //console.log("Net Capacity : ", netCapacity);
+//   return netCapacity;
+// }
+
+export async function getOrdersWithNetCapacity(orderId) {
+  try {
+    const netCapacity = await pool.query(
+      "select sum((ao.quantity - ao.sent_quantity)*ao.capacity) as totQunatity from  AllOrderDetails as ao where ao.order_id = ? group by ao.order_id;",
+      [orderId]
+    );
+    return netCapacity[0][0].totQunatity;
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+  //console.log("Net Capacity : ", netCapacity);
+}
+
+//getAllOrdersWithProduts with net capacity -----------------------------
+
+export async function getAllNewOrdersWithProdutsAndNetCapacity() {
+  try {
+    // orders[0].map(async (item) => {
+    //   let products = await getAllOrdersWithProdutsByID(item.order_id);
+    //   console.log(products);
+    //   return (item = { ...item, products: products.products });
+    // });
+    const res = await getAllNewOrdersWithProduts();
+    //console.log("Orders ----- : ", res.orders);
+    const orders = res.orders;
+    const updatedOrders = await Promise.all(
+      orders.map(async (item) => {
+        let netCapacity = 0;
+
+        if (item.products === undefined) {
+          netCapacity = 0;
+        } else {
+          netCapacity = await getOrdersWithNetCapacity(item.order_id);
+        }
+        //console.log(products);
+        // console.log("Net Capacity ----------------: ", netCapacity);
+        return { ...item, netCapacity: netCapacity };
+      })
+    );
+    const reult = { sucess: true, orders: updatedOrders };
+    return reult;
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+}
+
+export async function getAllNewOrdersWithProdutsAndCapacityAndNetCapacity() {
+  try {
+    // orders[0].map(async (item) => {
+    //   let products = await getAllOrdersWithProdutsByID(item.order_id);
+    //   console.log(products);
+    //   return (item = { ...item, products: products.products });
+    // });
+    const res = await getAllNewOrdersWithProduts();
+    //console.log("Orders ----- : ", res.orders);
+    const orders = res.orders;
+    const updatedOrders = await Promise.all(
+      orders.map(async (item) => {
+        let netCapacity = 0;
+
+        if (item.products === undefined) {
+          netCapacity = 0;
+        } else {
+          netCapacity = await getOrdersWithNetCapacity(item.order_id);
+        }
+        //console.log(products);
+        // console.log("Net Capacity ----------------: ", netCapacity);
+        return { ...item, netCapacity: netCapacity };
+      })
+    );
+    const reult = { sucess: true, orders: updatedOrders };
+    return reult;
   } catch (err) {
     return { sucess: false, err: err };
   }

@@ -6,10 +6,20 @@ import cookieParser from "cookie-parser";
 import customerRoutes from "./Routes/customer.js";
 import adminRoutes from "./Routes/admin.js";
 
+import coordinaterRoutes from "./Routes/coordinater.js";
+
 import loginRoutes from "./Routes/login.js";
 import orderRoutes from "./Routes/order.js";
 
-import auth from "./middleware/auth.js";
+import storeRoutes from "./Routes/store.js";
+
+import trainRoutes from "./Routes/train.js";
+
+import trainTripRoutes from "./Routes/trainTrip.js";
+
+import trainTokenRoutes from "./Routes/trainToken.js";
+
+import { auth } from "./middleware/auth.js";
 
 import { pool } from "./database/database.js";
 import {
@@ -31,14 +41,35 @@ import {
   getOrderById,
   addOrder,
   addOrderProductsByArray,
+  getOrdersWithNetCapacity,
+  getAllNewOrdersWithProdutsAndNetCapacity,
+  getAllNewOrdersWithProdutsAndCapacityAndNetCapacity,
+  getAllOrdersWithProdutsByID,
 } from "./database/orderData.js";
-import { getAllTrainDetails } from "./database/trainData.js";
+import {
+  getAllTrainDetails,
+  getTrainDetailsById,
+  getTrainDetailsByStoreId,
+} from "./database/trainData.js";
+import {
+  assignTrainTrip,
+  getAllTrainTripDetails,
+  getAvilableTrainsByDate,
+  getTrainTripDetailsByDateTime,
+  getTrainTripDetailsById,
+  getTrainTripDetailsByTrainId,
+} from "./database/traintripData.js";
+import {
+  addTrainTokenItems,
+  getTokenDetailsbyTripId,
+} from "./database/TrainTokenData.js";
+import { callStoredProcAndQuery } from "./database/driverData.js";
 
 // create express app ---
 const app = express();
 
 // add in-built middlewears ----
-app.use(cors());
+app.use(cors({ credentials: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -46,14 +77,24 @@ app.use(cookieParser());
 
 // for creaate file for upload images --
 app.use(express.static("public"));
-
+app.use(cookieParser());
 app.use("/login", loginRoutes);
 
 app.use("/customer", customerRoutes);
 
 app.use("/admin", adminRoutes);
 
+app.use("/coordinater", coordinaterRoutes);
+
 app.use("/order", orderRoutes);
+
+app.use("/store", storeRoutes);
+
+app.use("/train", trainRoutes);
+
+app.use("/traintrip", trainTripRoutes);
+
+app.use("/traintoken", trainTokenRoutes);
 
 // connfirm database connection---
 pool
@@ -89,13 +130,78 @@ pool
 //   state: "new",
 //   products: productList,
 // };
-// getAllTrainDetails()
+
+// getTrainTripDetailsByDateTime("TR001", "2023-10-26", "08:00:00")
 //   .then((res) => {
 //     console.log(res);
 //   })
 //   .catch((err) => {
 //     console.log(err);
 //   });
+
+// getAllOrdersWithProduts()
+//   .then((res) => {
+//     // console.log("Products Array : ", res.orders[0].products);
+//     const productArray = res.orders[0].products;
+// console.log("Products Array : ", productArray);
+// let netCapacity = 0;
+// productArray.map(async (item) => {
+//   const capacity = (await getProductCapacityById(item.product_id))
+//     .productCapacity.capacity;
+//   console.log("Capacity : ", capacity);
+//   netCapacity = netCapacity + capacity;
+// });
+//     return netCapacity;
+//   })
+//   .catch((err) => {
+//     console.log(err);
+//   });
+
+// const updatedOrders = await Promise.all(
+//   orders[0].map(async (item) => {
+//     let products = await getAllOrdersWithProdutsByID(item.order_id);
+//     //console.log(products);
+//     return { ...item, products: products.products };
+//   })
+// );
+
+// const func1 = async () => {
+//   console.log(
+//     "----------------------------------------------------------------------"
+//   );
+//   let netCapacity = 0;
+//   const res = await getAllOrdersWithProduts();
+//   const productArray = res.orders[0].products;
+//   console.log("Products Array ---------------: ", productArray);
+//   for (let i = 0; i < productArray.length; i++) {
+//     console.log(`Element at index ${i}: ${productArray[i].product_id}`);
+//     const capacity = (await getProductCapacityById(productArray[i].product_id))
+//       .productCapacity.capacity;
+//     console.log("Capacity : ", capacity);
+//     netCapacity = netCapacity + capacity;
+//   }
+//   return netCapacity;
+// };
+
+// const jsonArray = [
+//   {
+//     token_Id: 1,
+//     add_quantity: 2,
+//     order_Id: 8,
+//     product_id: "P006",
+//   },
+//   {
+//     token_Id: 1,
+//     add_quantity: 2,
+//     order_Id: 17,
+//     product_id: "P002",
+//   },
+// ];
+
+const res = await callStoredProcAndQuery();
+console.log("Net ", res);
+
+// console.log("Prod ---- ", res.orders[17].order_id, res.orders[17].products);
 
 const port = process.env.PORT || 8000;
 // Set Port to work as server ---

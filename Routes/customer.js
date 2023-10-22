@@ -1,6 +1,6 @@
 import express from "express";
 
-import auth from "../middleware/auth.js";
+import { auth } from "../middleware/auth.js";
 
 import multer from "multer";
 import path from "path";
@@ -13,6 +13,8 @@ import {
   loginCustomer,
 } from "../database/customerData.js";
 import { addOrder } from "../database/orderData.js";
+import { getAllProducts } from "../database/productData.js";
+import { getAllRoutes, getRouteByStoreId } from "../database/routeData.js";
 
 const router = express.Router();
 
@@ -75,7 +77,7 @@ router.post("/save", async (req, res) => {
 
 // Add customer order -----------------
 
-router.post("/addOrder", auth, async (req, res) => {
+router.post("/addOrder", async (req, res) => {
   try {
     const result = await addOrder(req.body);
     console.log("Result : ", result);
@@ -135,6 +137,57 @@ router.put("/upload/:id", upload.single("image"), (req, res) => {
     res
       .status(404)
       .json({ sucess: false, message: "Adding image Unsuccessfull", err: err });
+  }
+});
+
+router.get("/getAllProduts", async (req, res) => {
+  const result = await getAllProducts();
+  //   res.json(result);
+  //   console.log(result);
+  if (result.sucess) {
+    if (result.products.length > 0) {
+      res.status(200).json({ sucess: true, products: result.products });
+    } else {
+      res.status(200).json({ sucess: false, message: "No Produts" });
+    }
+  } else {
+    res
+      .status(404)
+      .json({ sucess: false, message: "No Produts", err: result.err });
+  }
+});
+
+router.get("/getAllRoutes", async (req, res) => {
+  const result = await getAllRoutes();
+  //   res.json(result);
+  //   console.log(result);
+  if (result.sucess) {
+    if (result.routes.length > 0) {
+      res.status(200).json({ sucess: true, routes: result.routes });
+    } else {
+      res.status(200).json({ sucess: false, message: "No Produts" });
+    }
+  } else {
+    res
+      .status(404)
+      .json({ sucess: false, message: "No Produts", err: result.err });
+  }
+});
+
+router.get("/getRoutes/:id", async (req, res) => {
+  const result = await getRouteByStoreId(req.params.id);
+  //   res.json(result);
+  //   console.log(result);
+  if (result.sucess) {
+    if (result.route.length > 0) {
+      res.status(200).json({ sucess: true, route: result.route });
+    } else {
+      res.status(200).json({ sucess: false, message: "No Such Customer" });
+    }
+  } else {
+    res
+      .status(404)
+      .json({ sucess: false, message: "No Produts", err: result.err });
   }
 });
 

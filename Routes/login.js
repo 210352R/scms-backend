@@ -17,7 +17,7 @@ import {
 } from "../database/customerData.js";
 import { loginAdmin } from "../database/adminData.js";
 import { loginCoordinater } from "../database/CoordinaterData.js";
-import auth from "../middleware/auth.js";
+import { Adminauth, auth } from "../middleware/auth.js";
 
 const router = express.Router();
 dotenv.config();
@@ -26,9 +26,14 @@ router.get("/customers/authenticate", auth, async (req, res) => {
   // const token = req?.headers.authorization.split(" ")[1];
   // console.log("undeci Token : ", token);
   // const decodedToken = jwt.decode(token);
-  res
-    .status(200)
-    .json({ success: true, message: "you are logged in", token: decodedToken });
+  res.status(200).json({ success: true, message: "you are logged in" });
+});
+
+router.get("/admin/authenticate", Adminauth, async (req, res) => {
+  // const token = req?.headers.authorization.split(" ")[1];
+  // console.log("undeci Token : ", token);
+  // const decodedToken = jwt.decode(token);
+  res.status(200).json({ success: true, message: "you are logged in" });
 });
 
 router.post("/customer", async (req, res) => {
@@ -37,11 +42,17 @@ router.post("/customer", async (req, res) => {
     const result = await loginCustomer(username, password);
     if (result.sucess) {
       //create jwt token
-      const token = jwt.sign({ user: username }, "123456");
+      const token = jwt.sign(
+        { user: username },
+        process.env.TOKEN_KEY_CUSTOMER,
+        {
+          expiresIn: "24h", // expires in 24 hours
+        }
+      );
       //save token in cookie
-      //res.cookie("authcookie", token, { httpOnly: true });
+      res.cookie("authcookie", token, { httpOnly: true });
       res.json({ ...result, token: token });
-      // .cookie("authcookie", token, { maxAge: 900000, httpOnly: true })
+      //
     } else {
       res.json(result);
     }
@@ -58,7 +69,7 @@ router.post("/admin", async (req, res) => {
     const result = await loginAdmin(username, password);
     if (result.sucess) {
       //create jwt token
-      const token = jwt.sign({ user: username }, "123456");
+      const token = jwt.sign({ user: username }, "123456Admin");
       //save token in cookie
       res.json({ ...result, token: token });
       // .cookie("authcookie", token, { maxAge: 900000, httpOnly: true })
@@ -77,11 +88,18 @@ router.post("/coordinater", async (req, res) => {
   try {
     const result = await loginCoordinater(username, password);
     if (result.sucess) {
-      //create jwt token
-      const token = jwt.sign({ user: username }, "123456");
-      //save token in cookie
-      res.json({ ...result, token: token });
-      // .cookie("authcookie", token, { maxAge: 900000, httpOnly: true })
+      if (result.coordinater.type === "train_coordinator") {
+        //create jwt token
+        const token = jwt.sign({ user: username }, "123456TrCoo");
+        //save token in cookie
+        res.json({ ...result, token: token });
+        // .cookie("authcookie", token, { maxAge: 900000, httpOnly: true })
+      } else {
+        const token = jwt.sign({ user: username }, "123456TrCoo");
+        //save token in cookie
+        res.json({ ...result, token: token });
+        // .cookie("authcookie", token, { maxAge: 900000, httpOnly: true })
+      }
     } else {
       res.json(result);
     }

@@ -17,7 +17,7 @@ export async function loginCoordinater(username, password) {
         // });
         return {
           sucess: true,
-          admin: result[0][0],
+          coordinater: result[0][0],
           message: "Login Sucessfull -",
         };
       } else {
