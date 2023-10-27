@@ -357,3 +357,32 @@ export async function getAllNewOrdersWithProdutsAndCapacityAndNetCapacity() {
     return { sucess: false, err: err };
   }
 }
+
+// products tikath ekka id eken ganna thmai mehema gahuwe  ---
+export async function getAllStoredOrdersWithProdutsByStoreId(id) {
+  try {
+    const order = await pool.query(
+      " select order_id, date , customer_id ,  delivery_address , o.route_id ,state , store_id from cust_order as o INNER JOIN route as r ON o. route_id = r.route_id where r.store_id = ? AND o.state = 'stored'",
+      [id]
+    );
+    let result;
+    let productArr;
+    //console.log("ORDER : ", order);
+    if (order[0].length > 0) {
+      const updatedOrders = await Promise.all(
+        order[0].map(async (item) => {
+          let products = await getAllOrdersWithProdutsByID(item.order_id);
+          //console.log(products);
+          return { ...item, products: products.products };
+        })
+      );
+      //console.log("UPDATED ORDERS : ", updatedOrders);
+      result = { sucess: true, orders: updatedOrders };
+    } else {
+      result = { sucess: false, order: order[0] };
+    }
+    return result;
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+}

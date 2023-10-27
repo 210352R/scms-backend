@@ -45,6 +45,7 @@ import {
   getAllNewOrdersWithProdutsAndNetCapacity,
   getAllNewOrdersWithProdutsAndCapacityAndNetCapacity,
   getAllOrdersWithProdutsByID,
+  getAllStoredOrdersWithProdutsByStoreId,
 } from "./database/orderData.js";
 import {
   getAllTrainDetails,
@@ -63,7 +64,10 @@ import {
   addTrainTokenItems,
   getTokenDetailsbyTripId,
 } from "./database/TrainTokenData.js";
-import { callStoredProcAndQuery } from "./database/driverData.js";
+import { getDriverIdsForSuitable } from "./database/driverData.js";
+import { getValidTruckForGivenDateTime } from "./database/truckData.js";
+import { getADriverIdsForSuitable } from "./database/a_driver_data.js";
+import { addTruckSchedule } from "./database/truckScheduleData.js";
 
 // create express app ---
 const app = express();
@@ -198,7 +202,24 @@ pool
 //   },
 // ];
 
-const res = await callStoredProcAndQuery();
+// const res = await getValidTruckForGivenDateTime(
+//   "2023-10-26",
+//   "10:00:00",
+//   "R002"
+// );
+// console.log("Net ", res);
+
+// const res = await addTruckSchedule({
+//   truck_id: "2",
+//   driver_id: "john_doe",
+//   a_driver_id: "jane",
+//   time: "08:00:00",
+//   Date: "2023-10-25",
+//   route_id: "R002",
+// });
+// console.log("Net ", res);
+
+const res = await getAllStoredOrdersWithProdutsByStoreId("S003");
 console.log("Net ", res);
 
 // console.log("Prod ---- ", res.orders[17].order_id, res.orders[17].products);
