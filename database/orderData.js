@@ -362,7 +362,7 @@ export async function getAllNewOrdersWithProdutsAndCapacityAndNetCapacity() {
 export async function getAllStoredOrdersWithProdutsByStoreId(id) {
   try {
     const order = await pool.query(
-      " select order_id, date , customer_id ,  delivery_address , o.route_id ,state , store_id from cust_order as o INNER JOIN route as r ON o. route_id = r.route_id where r.store_id = ? AND o.state = 'stored'",
+      " select order_id, date , customer_id ,  delivery_address , o.route_id ,state , store_id from cust_order as o INNER JOIN route as r ON o. route_id = r.route_id where r.store_id = ? AND o.state = 'stored' order by o.date ASC",
       [id]
     );
     let result;
@@ -379,7 +379,7 @@ export async function getAllStoredOrdersWithProdutsByStoreId(id) {
       //console.log("UPDATED ORDERS : ", updatedOrders);
       result = { sucess: true, orders: updatedOrders };
     } else {
-      result = { sucess: false, order: order[0] };
+      result = { sucess: true, order: order[0] };
     }
     return result;
   } catch (err) {

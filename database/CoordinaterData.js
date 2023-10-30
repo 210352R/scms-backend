@@ -35,3 +35,40 @@ export async function loginCoordinater(username, password) {
     return response;
   }
 }
+export async function getCooByUserName(username) {
+  try {
+    const customer = await pool.query(
+      "select * from train_coordinator_details where user_name = ? ",
+      [username]
+    );
+    let result;
+    if (customer[0]?.length > 0) {
+      result = { sucess: true, customer: customer[0] };
+    } else {
+      result = { sucess: true, err: "No such item Found !" };
+    }
+    //const result = { sucess: true, customer: customer[0] };
+    return result;
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+}
+
+export async function getTruckCooByUserName(username) {
+  try {
+    const truckCoo = await pool.query(
+      "select * from truck_coordinator_details where user_name = ? ",
+      [username]
+    );
+    let result;
+    if (truckCoo[0]?.length > 0) {
+      result = { sucess: true, truckCoo: truckCoo[0] };
+    } else {
+      result = { sucess: true, err: "No such item Found !" };
+    }
+    //const result = { sucess: true, customer: customer[0] };
+    return result;
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+}

@@ -106,13 +106,34 @@ export async function getDriverIdsForSuitable(date, time, tripTime) {
     // console.log("Result Capacity:", resultCapacity);
     // console.log("Result Capacity IDS:", resultCapacity[0]);
     // // Use the output parameter in your subsequent query
-    const [result] = await connection.query(
-      "SELECT userName FROM driver WHERE userName NOT IN (? , ?) AND  userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ? AND total_work_hours >= (40-?)) ",
-      [outputDriverId_1, outputDriverId_2, year, weekNumber, tripTime]
-    );
+    let result;
+    if (!outputDriverId_1 && !outputDriverId_2) {
+      result = await connection.query(
+        "SELECT userName FROM driver WHERE userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ? AND total_work_hours >= (40-?)) ",
+        [year, weekNumber, tripTime]
+      );
+    }
+    if (!outputDriverId_1 && outputDriverId_2) {
+      result = await connection.query(
+        "SELECT userName FROM driver WHERE userName NOT IN (?) AND  userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ? AND total_work_hours >= (40-?)) ",
+        [outputDriverId_2, year, weekNumber, tripTime]
+      );
+    }
+    if (outputDriverId_1 && !outputDriverId_2) {
+      result = await connection.query(
+        "SELECT userName FROM driver WHERE userName NOT IN (?) AND  userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ? AND total_work_hours >= (40-?)) ",
+        [outputDriverId_1, year, weekNumber, tripTime]
+      );
+    }
+    if (outputDriverId_1 && outputDriverId_2) {
+      result = await connection.query(
+        "SELECT userName FROM driver WHERE userName NOT IN (? , ?) AND  userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ? AND total_work_hours >= (40-?)) ",
+        [outputDriverId_1, outputDriverId_2, year, weekNumber, tripTime]
+      );
+    }
 
     // console.log("Result:", result);
-    return { sucess: true, result };
+    return { sucess: true, result: result[0] };
   } catch (error) {
     console.error("Error:", error);
   } finally {

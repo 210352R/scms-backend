@@ -8,6 +8,8 @@ import adminRoutes from "./Routes/admin.js";
 
 import coordinaterRoutes from "./Routes/coordinater.js";
 
+import truckCoordinaterRoutes from "./Routes/TruckCoordinater.js";
+
 import loginRoutes from "./Routes/login.js";
 import orderRoutes from "./Routes/order.js";
 
@@ -62,12 +64,19 @@ import {
 } from "./database/traintripData.js";
 import {
   addTrainTokenItems,
+  getAllTrainTokenDetails,
+  getAllTrainTokenDetailsAccCapacity,
   getTokenDetailsbyTripId,
 } from "./database/TrainTokenData.js";
 import { getDriverIdsForSuitable } from "./database/driverData.js";
 import { getValidTruckForGivenDateTime } from "./database/truckData.js";
 import { getADriverIdsForSuitable } from "./database/a_driver_data.js";
-import { addTruckSchedule } from "./database/truckScheduleData.js";
+import {
+  addTruckSchedule,
+  getAllTruckSchedules,
+  getAllTruckSchedulesByDate,
+} from "./database/truckScheduleData.js";
+import { getCooByUserName } from "./database/CoordinaterData.js";
 
 // create express app ---
 const app = express();
@@ -89,6 +98,8 @@ app.use("/customer", customerRoutes);
 app.use("/admin", adminRoutes);
 
 app.use("/coordinater", coordinaterRoutes);
+
+app.use("/truckcoordinater", truckCoordinaterRoutes);
 
 app.use("/order", orderRoutes);
 
@@ -216,10 +227,13 @@ pool
 //   time: "08:00:00",
 //   Date: "2023-10-25",
 //   route_id: "R002",
+//   order_id: "17",
 // });
 // console.log("Net ", res);
 
-const res = await getAllStoredOrdersWithProdutsByStoreId("S003");
+// const res = await getAllStoredOrdersWithProdutsByStoreId("S003");
+
+const res = await getAllTrainTokenDetailsAccCapacity();
 console.log("Net ", res);
 
 // console.log("Prod ---- ", res.orders[17].order_id, res.orders[17].products);

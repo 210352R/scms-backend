@@ -47,14 +47,29 @@ export async function getTruckByStoreId(id) {
   }
 }
 
-export async function getValidTruckForGivenDateTime(date, time, route_id) {
+export async function getValidTruckForGivenDateTime(
+  date,
+  time,
+  route_id,
+  store_id
+) {
+  console.log("Date : ", date, "Time : ", time, "Route : ", route_id);
   const dateObj = moment(date, "YYYY-MM-DD");
-  const month = dateObj.month() + 1;
-  try {
-    const query = "call scms_db.GetAvailableTrucksByMonth(?,?,?,?)";
 
-    const trucks = await pool.query(query, [date, time, route_id, month]);
+  const month = dateObj.month() + 1;
+  console.log("Month : ", month);
+  try {
+    const query = "call scms_db.GetAvailableTrucksByMonth(?,?,?,?,?)";
+
+    const trucks = await pool.query(query, [
+      date,
+      time,
+      route_id,
+      store_id,
+      month,
+    ]);
     let result;
+    console.log("Trucks : ", trucks[0][0]);
     if (trucks[0].length > 0) {
       result = { sucess: true, truck: trucks[0][0] };
     } else {

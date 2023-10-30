@@ -58,6 +58,10 @@ export async function addTrainTokenItems(tokenItems) {
 
 export async function updateTokenCapacity(tokenCapacity) {
   try {
+    const res = await await pool.query(
+      "select train_capacity from train_token_view where token_Id = ?",
+      [tokenCapacity.token_id]
+    );
     const query = "UPDATE train_token SET curr_capacity = ? WHERE token_id = ?";
     const result = await pool.query(query, [
       tokenCapacity.capacity,
@@ -65,6 +69,37 @@ export async function updateTokenCapacity(tokenCapacity) {
     ]);
     console.log("Wade Goda --- ");
     return { sucess: true, data: result };
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+}
+
+export async function getAllTrainTokenDetails() {
+  try {
+    const tokens = await pool.query("select * from train_token_view;");
+
+    const reult = { sucess: true, tokens: tokens[0] };
+    return reult;
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+}
+
+export async function getAllTrainTokenDetailsAccCapacity() {
+  try {
+    const tokens = await pool.query(
+      "select * from train_token_view where curr_capacity != train_capacity order by curr_capacity desc  limit 10 ;"
+    );
+
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString(); // ISO 8601 format
+    console.log(formattedDate);
+    // use filter function for get the tokens which are not expired
+    const newTokens = tokens[0].filter((token) => {
+      return token.Date >= currentDate;
+    });
+    const reult = { sucess: true, tokens: newTokens };
+    return reult;
   } catch (err) {
     return { sucess: false, err: err };
   }

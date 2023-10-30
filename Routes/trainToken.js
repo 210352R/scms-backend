@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addTrainTokenItems,
+  getAllTrainTokenDetailsAccCapacity,
   getTokenDetailsbyTripId,
   updateTokenCapacity,
 } from "../database/TrainTokenData.js";
@@ -63,6 +64,17 @@ router.post("/updateCapacity", async (req, res) => {
     res
       .status(404)
       .json({ sucess: false, message: "Not updated Capacity", err: err });
+  }
+});
+
+router.get("/getNotFillTokenDetails", async (req, res) => {
+  const result = await getAllTrainTokenDetailsAccCapacity();
+  //   res.json(result);
+  console.log(result);
+  if (result.sucess) {
+    res.status(200).json(result);
+  } else {
+    res.status(404).json({ sucess: false, message: "No Tokens found" });
   }
 });
 

@@ -16,7 +16,10 @@ import {
   loginCustomer,
 } from "../database/customerData.js";
 import { loginAdmin } from "../database/adminData.js";
-import { loginCoordinater } from "../database/CoordinaterData.js";
+import {
+  getTruckCooByUserName,
+  loginCoordinater,
+} from "../database/CoordinaterData.js";
 import { Adminauth, auth } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -97,7 +100,11 @@ router.post("/coordinater", async (req, res) => {
       } else {
         const token = jwt.sign({ user: username }, "123456TrCoo");
         //save token in cookie
-        res.json({ ...result, token: token });
+        //add data
+        const resTruckCoo = await getTruckCooByUserName(username);
+        console.log("Truck Coo : ", resTruckCoo);
+        const truckCoo = resTruckCoo.truckCoo;
+        res.json({ ...result, token: token, truckCoo: truckCoo });
         // .cookie("authcookie", token, { maxAge: 900000, httpOnly: true })
       }
     } else {

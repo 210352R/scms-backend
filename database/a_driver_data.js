@@ -53,9 +53,10 @@ export async function getADriverIdsForSuitable(date, time, tripTime) {
 
     if (resNearAfter[0][0].length > 0) {
       if (
-        resNearAfter[0][0][0].a_driver_id === resNearAfter[0][0][1].a_driver_id
+        resNearAfter[0][0][0]?.a_driver_id ===
+        resNearAfter[0][0][1]?.a_driver_id
       ) {
-        inputIdNearAfter = resNearAfter[0][0][0].a_driver_id;
+        inputIdNearAfter = resNearAfter[0][0][0]?.a_driver_id;
       }
     }
 
@@ -67,9 +68,10 @@ export async function getADriverIdsForSuitable(date, time, tripTime) {
 
     if (resNearEarly[0][0].length > 0) {
       if (
-        resNearEarly[0][0][0].a_driver_id === resNearEarly[0][0][1].a_driver_id
+        resNearEarly[0][0][0]?.a_driver_id ===
+        resNearEarly[0][0][1]?.a_driver_id
       ) {
-        inputIdNearEarly = resNearEarly[0][0][0].a_driver_id;
+        inputIdNearEarly = resNearEarly[0][0][0]?.a_driver_id;
       }
     }
 
@@ -117,7 +119,7 @@ export async function getADriverIdsForSuitable(date, time, tripTime) {
     }
 
     console.log("Result:", result[0]);
-    return { sucess: true, result };
+    return { sucess: true, result: result[0] };
   } catch (error) {
     console.error("Error:", error);
     return { sucess: false, err: err };

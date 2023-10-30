@@ -29,3 +29,14 @@ export async function getAllRoutes() {
     return { sucess: false, err: err };
   }
 }
+export async function getRouteById(id) {
+  try {
+    const routes = await pool.query("SELECT * FROM route where route_id = ?", [
+      id,
+    ]);
+    const reult = { sucess: true, routes: routes[0] };
+    return reult;
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+}
