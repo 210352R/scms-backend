@@ -18,7 +18,7 @@ export async function getQuartlaryReport(year) {
 export async function getItemsWithMostSales(year) {
   try {
     const res = await pool.query(
-      "SELECT * FROM most_ordered_products where order_year = ?",
+      "SELECT * FROM most_ordered_products where order_year = ? LIMIT 5",
       [year]
     );
     let result;
@@ -81,7 +81,7 @@ export async function getWorkHoursOfTrucks(year) {
 export async function getWorkHoursOfEmployees(year) {
   try {
     const res = await pool.query(
-      "SELECT * FROM weeklyworkhours_drivers WHERE year = ? UNION ALL SELECT * FROM weeklyworkhours_a_drivers WHERE year = ?",
+      "SELECT username , type, sum(total_work_hours) as tot_time FROM weeklyworkhours_drivers as wd inner join employee as emp on emp.userName = wd.driver_id where year=?  group by userName Union  All SELECT username , type, sum(total_work_hours) as tot_time FROM weeklyworkhours_a_drivers as wd inner join employee as emp on emp.userName = wd.a_driver_id where year=?  group by userName",
       [year, year]
     );
     console.log(res[0]);

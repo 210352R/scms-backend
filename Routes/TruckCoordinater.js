@@ -70,8 +70,8 @@ router.get(
       req.params.store_id
     );
 
-    //   res.json(result);
-    //   console.log(result);
+    res.json(result);
+    console.log(result);
     if (result.sucess) {
       res.status(200).json(result);
     } else {

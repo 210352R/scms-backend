@@ -89,32 +89,39 @@ export async function getADriverIdsForSuitable(date, time, tripTime, store_id) {
     if (!inputIdNearAfter && !inputIdNearEarly) {
       console.log("Wohfroh 0");
       result = await pool.query(
-        "SELECT userName FROM a_driver WHERE  userName NOT IN (select a_driver_id from WeeklyWorkHours_a_drivers where year = ? AND week_number = ? AND total_work_hours >= (60-?)) ",
-        [inputIdNearEarly, year, weekNumber, tripTime]
+        "SELECT userName FROM geta_driverdata  WHERE store_id = ? AND userName NOT IN (select a_driver_id from WeeklyWorkHours_a_drivers where year = ? AND week_number = ? AND total_work_hours >= (60-?)) ",
+        [store_id, year, weekNumber, tripTime]
       );
     }
 
     if (!inputIdNearAfter && inputIdNearEarly) {
       console.log("Wohfroh 1");
       result = await pool.query(
-        "SELECT userName FROM a_driver WHERE userName NOT IN (?) AND  userName NOT IN (select a_driver_id from WeeklyWorkHours_a_drivers where year = ? AND week_number = ? AND total_work_hours >= (60-?)) ",
-        [inputIdNearEarly, year, weekNumber, tripTime]
+        "SELECT userName FROM geta_driverdata  WHERE store_id = ? AND userName NOT IN (?) AND  userName NOT IN (select a_driver_id from WeeklyWorkHours_a_drivers where year = ? AND week_number = ? AND total_work_hours >= (60-?)) ",
+        [store_id, inputIdNearEarly, year, weekNumber, tripTime]
       );
     }
 
     if (inputIdNearAfter && !inputIdNearEarly) {
       console.log("Query 2");
       result = await pool.query(
-        "SELECT userName FROM a_driver WHERE userName NOT IN (?) AND  userName NOT IN (select a_driver_id from WeeklyWorkHours_a_drivers where year = ? AND week_number = ? AND total_work_hours >= (60-?)) ",
-        [inputIdNearAfter, year, weekNumber, tripTime]
+        "SELECT userName FROM geta_driverdata  WHERE store_id = ? AND userName NOT IN (?) AND  userName NOT IN (select a_driver_id from WeeklyWorkHours_a_drivers where year = ? AND week_number = ? AND total_work_hours >= (60-?)) ",
+        [store_id, inputIdNearAfter, year, weekNumber, tripTime]
       );
     }
 
     if (inputIdNearAfter && inputIdNearEarly) {
       console.log("Query 3");
       result = await pool.query(
-        "SELECT userName FROM a_driver WHERE userName NOT IN (? , ?) AND  userName NOT IN (select a_driver_id from WeeklyWorkHours_a_drivers where year = ? AND week_number = ? AND total_work_hours >= (60-?)) ",
-        [inputIdNearAfter, inputIdNearEarly, year, weekNumber, tripTime]
+        "SELECT userName FROM geta_driverdata  WHERE store_id = ? AND userName NOT IN (? , ?) AND  userName NOT IN (select a_driver_id from WeeklyWorkHours_a_drivers where year = ? AND week_number = ? AND total_work_hours >= (60-?)) ",
+        [
+          store_id,
+          inputIdNearAfter,
+          inputIdNearEarly,
+          year,
+          weekNumber,
+          tripTime,
+        ]
       );
     }
 
