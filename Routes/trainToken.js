@@ -2,6 +2,7 @@ import express from "express";
 import {
   addTrainTokenItems,
   getAllTrainTokenDetailsAccCapacity,
+  getAllTrainTokenDetailsAccCapacityByStoreId,
   getTokenDetailsbyTripId,
   updateTokenCapacity,
 } from "../database/TrainTokenData.js";
@@ -48,10 +49,14 @@ router.post("/updateCapacity", async (req, res) => {
   try {
     const result = await updateTokenCapacity(req.body);
     console.log("Result : ", result);
-    if (result.sucess) {
+    if (result.sucess && result.capacity) {
       res
         .status(200)
         .json({ sucess: true, message: "successfully updated Capacity" });
+    } else if (result.sucess && !result.capacity) {
+      res
+        .status(200)
+        .json({ sucess: false, message: "Capacity Exceeded ---- " });
     } else {
       res.status(404).json({
         sucess: false,
@@ -78,4 +83,16 @@ router.get("/getNotFillTokenDetails", async (req, res) => {
   }
 });
 
+router.get("/getNotFillTokenDetailsByStore/:id", async (req, res) => {
+  const result = await getAllTrainTokenDetailsAccCapacityByStoreId(
+    req.params.id
+  );
+  //   res.json(result);
+  console.log(result);
+  if (result.sucess) {
+    res.status(200).json(result);
+  } else {
+    res.status(404).json({ sucess: false, message: "No Tokens found" });
+  }
+});
 export default router;

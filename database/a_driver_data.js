@@ -40,14 +40,14 @@ export async function getDriverByUserName(username) {
   }
 }
 
-export async function getADriverIdsForSuitable(date, time, tripTime) {
+export async function getADriverIdsForSuitable(date, time, tripTime, store_id) {
   try {
     let inputIdNearAfter = null;
     let inputIdNearEarly = null;
 
-    const query = "call scms_db.GetA_DriverIdByNearAfter(?,?)";
+    const query = "call scms_db.GetA_DriverIdByNearAfter(?,?,?)";
     // Execute the stored procedure using the CALL statement
-    const resNearAfter = await pool.query(query, [date, time]);
+    const resNearAfter = await pool.query(query, [date, time, store_id]);
 
     console.log("dfhbasabnjfsn : ", resNearAfter[0][0]);
 
@@ -62,9 +62,9 @@ export async function getADriverIdsForSuitable(date, time, tripTime) {
 
     console.log("inputIdNearAfter : ", inputIdNearAfter);
 
-    const query2 = "call scms_db.GetA_DriverIdByNearEarly(?, ?)";
+    const query2 = "call scms_db.GetA_DriverIdByNearEarly(?, ? , ?)";
 
-    const resNearEarly = await pool.query(query, [date, time]);
+    const resNearEarly = await pool.query(query, [date, time, store_id]);
 
     if (resNearEarly[0][0].length > 0) {
       if (

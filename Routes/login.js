@@ -20,7 +20,7 @@ import {
   getTruckCooByUserName,
   loginCoordinater,
 } from "../database/CoordinaterData.js";
-import { Adminauth, auth } from "../middleware/auth.js";
+import { Adminauth, TCooauth, TruckCooauth, auth } from "../middleware/auth.js";
 
 const router = express.Router();
 dotenv.config();
@@ -33,6 +33,20 @@ router.get("/customers/authenticate", auth, async (req, res) => {
 });
 
 router.get("/admin/authenticate", Adminauth, async (req, res) => {
+  // const token = req?.headers.authorization.split(" ")[1];
+  // console.log("undeci Token : ", token);
+  // const decodedToken = jwt.decode(token);
+  res.status(200).json({ success: true, message: "you are logged in" });
+});
+
+router.get("/tcoo/authenticate", TCooauth, async (req, res) => {
+  // const token = req?.headers.authorization.split(" ")[1];
+  // console.log("undeci Token : ", token);
+  // const decodedToken = jwt.decode(token);
+  res.status(200).json({ success: true, message: "you are logged in" });
+});
+
+router.get("/trcoo/authenticate", TruckCooauth, async (req, res) => {
   // const token = req?.headers.authorization.split(" ")[1];
   // console.log("undeci Token : ", token);
   // const decodedToken = jwt.decode(token);
@@ -98,7 +112,7 @@ router.post("/coordinater", async (req, res) => {
         res.json({ ...result, token: token });
         // .cookie("authcookie", token, { maxAge: 900000, httpOnly: true })
       } else {
-        const token = jwt.sign({ user: username }, "123456TrCoo");
+        const token = jwt.sign({ user: username }, "123456TruckCoo");
         //save token in cookie
         //add data
         const resTruckCoo = await getTruckCooByUserName(username);

@@ -81,6 +81,84 @@ export function Adminauth(req, res, next) {
   }
 }
 
+export function TCooauth(req, res, next) {
+  //get authcookie from request
+
+  if (
+    req?.headers.authorization &&
+    req?.headers.authorization.startsWith("Bearer")
+  ) {
+    //meke [0] element eka thamai "Bearer" [1] ta thamai token eka denne
+    const token = req?.headers.authorization.split(" ")[1];
+    console.log(token);
+    if (token == null) {
+      res.send(401).json({
+        message: "Not authorized --- ",
+        success: false,
+      });
+    }
+
+    jwt.verify(token, "123456TrCoo", (err, user) => {
+      if (err) {
+        res.status(200).json({
+          message: "Prohibidden",
+          success: false,
+        });
+      } else {
+        console.log("Wade goda -----------");
+        // req.headers['x-custom-header'] = 'CustomHeaderValue';
+        req.user = user; //req ekata user ekenek danawa ---
+        next();
+      }
+    });
+  } else {
+    console.log("Hello World ------ ");
+    res.status(200).json({
+      message: "Access Denied",
+      success: false,
+    });
+  }
+}
+
+export function TruckCooauth(req, res, next) {
+  //get authcookie from request
+
+  if (
+    req?.headers.authorization &&
+    req?.headers.authorization.startsWith("Bearer")
+  ) {
+    //meke [0] element eka thamai "Bearer" [1] ta thamai token eka denne
+    const token = req?.headers.authorization.split(" ")[1];
+    console.log(token);
+    if (token == null) {
+      res.send(401).json({
+        message: "Not authorized --- ",
+        success: false,
+      });
+    }
+
+    jwt.verify(token, "123456TruckCoo", (err, user) => {
+      if (err) {
+        res.status(200).json({
+          message: "Prohibidden",
+          success: false,
+        });
+      } else {
+        console.log("Wade goda -----------");
+        // req.headers['x-custom-header'] = 'CustomHeaderValue';
+        req.user = user; //req ekata user ekenek danawa ---
+        next();
+      }
+    });
+  } else {
+    console.log("Hello World ------ ");
+    res.status(200).json({
+      message: "Access Denied",
+      success: false,
+    });
+  }
+}
+
 // export function auth(req, res, next) {
 //   const token = req.cookies.authcookie; // Retrieve the token from the "authcookie" cookie
 //   console.log(token);

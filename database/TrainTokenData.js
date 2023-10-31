@@ -62,13 +62,23 @@ export async function updateTokenCapacity(tokenCapacity) {
       "select train_capacity from train_token_view where token_Id = ?",
       [tokenCapacity.token_id]
     );
-    const query = "UPDATE train_token SET curr_capacity = ? WHERE token_id = ?";
-    const result = await pool.query(query, [
-      tokenCapacity.capacity,
-      tokenCapacity.token_id,
-    ]);
-    console.log("Wade Goda --- ");
-    return { sucess: true, data: result };
+
+    const train_cap = res[0][0].train_capacity;
+
+    const curr_cap = tokenCapacity.capacity;
+
+    if (curr_cap <= train_cap) {
+      const query =
+        "UPDATE train_token SET curr_capacity = ? WHERE token_id = ?";
+      const result = await pool.query(query, [
+        tokenCapacity.capacity,
+        tokenCapacity.token_id,
+      ]);
+      console.log("Wade Goda --- ");
+      return { sucess: true, capacity: true, data: result };
+    } else {
+      return { sucess: true, capacity: false, meassage: "Capacity Exceed " };
+    }
   } catch (err) {
     return { sucess: false, err: err };
   }
@@ -89,6 +99,27 @@ export async function getAllTrainTokenDetailsAccCapacity() {
   try {
     const tokens = await pool.query(
       "select * from train_token_view where curr_capacity != train_capacity order by curr_capacity desc  limit 10 ;"
+    );
+
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString(); // ISO 8601 format
+    console.log(formattedDate);
+    // use filter function for get the tokens which are not expired
+    const newTokens = tokens[0].filter((token) => {
+      return token.Date >= currentDate;
+    });
+    const reult = { sucess: true, tokens: newTokens };
+    return reult;
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+}
+
+export async function getAllTrainTokenDetailsAccCapacityByStoreId(id) {
+  try {
+    const tokens = await pool.query(
+      "select * from train_token_view where curr_capacity != train_capacity and  store_id = ? order by curr_capacity desc  limit 10 ;",
+      [id]
     );
 
     const currentDate = new Date();

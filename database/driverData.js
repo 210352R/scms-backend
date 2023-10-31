@@ -48,47 +48,33 @@ export async function getDriverByUserName(username) {
   }
 }
 
-export async function getDriverIdsForSuitable(date, time, tripTime) {
+export async function getDriverIdsForSuitable(date, time, tripTime, store_id) {
   const connection = await pool.getConnection();
 
   try {
-    // Set input parameters
-    const inputDate = date;
-    const inputTime = time;
+    let outputDriverId_1 = null;
+    let outputDriverId_2 = null;
 
-    // Create an empty variable for the output parameter
-    let outputDriverId_1;
-    let outputDriverId_2;
-
+    const query1 = "call scms_db.GetDriverIdByNearAfter(?,?,?)";
     // Execute the stored procedure using the CALL statement
-    await connection.query(
-      "CALL GetDriverIdByNearEarly(?, ?, @output_driver_id)",
-      [inputDate, inputTime]
-    );
+    const resNearAfter = await pool.query(query1, [date, time, store_id]);
+    if (resNearAfter[0][0][0]) {
+      outputDriverId_1 = resNearAfter[0][0][0]?.driver_id;
+    }
 
-    // Fetch the value of the output parameter
-    const [rows] = await connection.query(
-      "SELECT @output_driver_id AS output_driver_id"
-    );
+    console.log("Output Driver Id 1 : ", outputDriverId_1);
 
-    // The output parameter value will be in rows[0][0]
-    outputDriverId_1 = rows[0].output_driver_id;
+    const query2 = "call scms_db.GetDriverIdByNearEarly(?,?,?)";
+    // Execute the stored procedure using the CALL statement
+    const resNearEarly = await pool.query(query2, [date, time, store_id]);
+    console.log("ResNearAfter : ", resNearAfter[0][0]);
+    console.log("ResNearEarly : ", resNearEarly[0][0]);
+    if (resNearEarly[0][0][0]) {
+      console.log("dfgfhgjhkjhfdfsdssfghj ---- ----- ---- --- ");
+      outputDriverId_2 = resNearEarly[0][0][0]?.driver_id;
+    }
 
-    // // Process the output parameter
-    console.log("Output Driver ID:", outputDriverId_1);
-
-    await connection.query(
-      "CALL GetDriverIdByNearAfter(?, ?, @output_driver_id)",
-      [inputDate, inputTime]
-    );
-
-    const [rows1] = await connection.query(
-      "SELECT @output_driver_id AS output_driver_id"
-    );
-
-    outputDriverId_2 = rows1[0].output_driver_id;
-
-    console.log("Output Driver ID 2:", outputDriverId_2);
+    console.log("Output Driver Id 2 : ", outputDriverId_2);
 
     const dateObj = moment(date, "YYYY-MM-DD");
     const weekNumber = dateObj.isoWeek();
@@ -109,26 +95,33 @@ export async function getDriverIdsForSuitable(date, time, tripTime) {
     let result;
     if (!outputDriverId_1 && !outputDriverId_2) {
       result = await connection.query(
-        "SELECT userName FROM driver WHERE userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ? AND total_work_hours >= (40-?)) ",
-        [year, weekNumber, tripTime]
+        "SELECT userName FROM getdriverdata where store_id = ? AND userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ?  AND total_work_hours >= (40-?)) ",
+        [store_id, year, weekNumber, tripTime]
       );
     }
     if (!outputDriverId_1 && outputDriverId_2) {
       result = await connection.query(
-        "SELECT userName FROM driver WHERE userName NOT IN (?) AND  userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ? AND total_work_hours >= (40-?)) ",
-        [outputDriverId_2, year, weekNumber, tripTime]
+        "SELECT userName FROM getdriverdata where store_id = ? AND userName NOT IN (?) AND userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ?  AND total_work_hours >= (40-?))",
+        [store_id, outputDriverId_2, year, weekNumber, tripTime]
       );
     }
     if (outputDriverId_1 && !outputDriverId_2) {
       result = await connection.query(
-        "SELECT userName FROM driver WHERE userName NOT IN (?) AND  userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ? AND total_work_hours >= (40-?)) ",
-        [outputDriverId_1, year, weekNumber, tripTime]
+        "SELECT userName FROM getdriverdata where store_id = ? AND userName NOT IN (?) AND userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ?  AND total_work_hours >= (40-?))",
+        [store_id, outputDriverId_1, year, weekNumber, tripTime]
       );
     }
     if (outputDriverId_1 && outputDriverId_2) {
       result = await connection.query(
-        "SELECT userName FROM driver WHERE userName NOT IN (? , ?) AND  userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ? AND total_work_hours >= (40-?)) ",
-        [outputDriverId_1, outputDriverId_2, year, weekNumber, tripTime]
+        "SELECT userName FROM getdriverdata where store_id = ? AND userName NOT IN (?,?) AND userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ?  AND total_work_hours >= (40-?))",
+        [
+          store_id,
+          outputDriverId_1,
+          outputDriverId_2,
+          year,
+          weekNumber,
+          tripTime,
+        ]
       );
     }
 

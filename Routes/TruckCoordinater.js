@@ -53,23 +53,32 @@ router.get(
   }
 );
 
-router.get("/getValidAllDrivers/:date/:time/:trip_time", async (req, res) => {
-  console.log(req.params.date, req.params.time, req.params.trip_time);
+router.get(
+  "/getValidAllDrivers/:date/:time/:trip_time/:store_id",
+  async (req, res) => {
+    console.log(
+      req.params.date,
+      req.params.time,
+      req.params.trip_time,
+      req.params.store_id
+    );
 
-  const result = await getDriverIdsForSuitable(
-    req.params.date,
-    req.params.time,
-    req.params.trip_time
-  );
+    const result = await getDriverIdsForSuitable(
+      req.params.date,
+      req.params.time,
+      req.params.trip_time,
+      req.params.store_id
+    );
 
-  //   res.json(result);
-  //   console.log(result);
-  if (result.sucess) {
-    res.status(200).json(result);
-  } else {
-    res.status(500).json({ sucess: false, message: "No Drivers found yet" });
+    //   res.json(result);
+    //   console.log(result);
+    if (result.sucess) {
+      res.status(200).json(result);
+    } else {
+      res.status(500).json({ sucess: false, message: "No Drivers found yet" });
+    }
   }
-});
+);
 
 router.get("/getRoute/:id", async (req, res) => {
   const result = await getRouteById(req.params.id);
@@ -83,14 +92,20 @@ router.get("/getRoute/:id", async (req, res) => {
 });
 
 router.get(
-  "/getValidAll_A_Drivers/:date/:time/:trip_time",
+  "/getValidAll_A_Drivers/:date/:time/:trip_time/:store_id",
   async (req, res) => {
-    console.log(req.params.date, req.params.time, req.params.trip_time);
+    console.log(
+      req.params.date,
+      req.params.time,
+      req.params.trip_time,
+      req.params.store_id
+    );
 
     const result = await getADriverIdsForSuitable(
       req.params.date,
       req.params.time,
-      req.params.trip_time
+      req.params.trip_time,
+      req.params.store_id
     );
 
     //   res.json(result);

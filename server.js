@@ -21,6 +21,8 @@ import trainTripRoutes from "./Routes/trainTrip.js";
 
 import trainTokenRoutes from "./Routes/trainToken.js";
 
+import reportRoutes from "./Routes/report.js";
+
 import { auth } from "./middleware/auth.js";
 
 import { pool } from "./database/database.js";
@@ -66,7 +68,9 @@ import {
   addTrainTokenItems,
   getAllTrainTokenDetails,
   getAllTrainTokenDetailsAccCapacity,
+  getAllTrainTokenDetailsAccCapacityByStoreId,
   getTokenDetailsbyTripId,
+  updateTokenCapacity,
 } from "./database/TrainTokenData.js";
 import { getDriverIdsForSuitable } from "./database/driverData.js";
 import { getValidTruckForGivenDateTime } from "./database/truckData.js";
@@ -77,6 +81,14 @@ import {
   getAllTruckSchedulesByDate,
 } from "./database/truckScheduleData.js";
 import { getCooByUserName } from "./database/CoordinaterData.js";
+import {
+  getItemsWithMostSales,
+  getQuartlaryReport,
+  getSalesBasedId,
+  getSalesByCustomer,
+  getWorkHoursOfEmployees,
+  getWorkHoursOfTrucks,
+} from "./database/reportData.js";
 
 // create express app ---
 const app = express();
@@ -110,6 +122,8 @@ app.use("/train", trainRoutes);
 app.use("/traintrip", trainTripRoutes);
 
 app.use("/traintoken", trainTokenRoutes);
+
+app.use("/report", reportRoutes);
 
 // connfirm database connection---
 pool
@@ -231,9 +245,11 @@ pool
 // });
 // console.log("Net ", res);
 
-// const res = await getAllStoredOrdersWithProdutsByStoreId("S003");
+// const res = await getItemsWithMostSales(2023);
+// console.log("Newhguioa : ", res);
 
-const res = await getAllTrainTokenDetailsAccCapacity();
+const res = await getDriverIdsForSuitable("2023-11-03", "10:00:00", 2, "S001");
+
 console.log("Net ", res);
 
 // console.log("Prod ---- ", res.orders[17].order_id, res.orders[17].products);

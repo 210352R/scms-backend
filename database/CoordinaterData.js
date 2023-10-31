@@ -54,6 +54,25 @@ export async function getCooByUserName(username) {
   }
 }
 
+export async function getStoreIdCooByUserName(username) {
+  try {
+    const truckCoo = await pool.query(
+      "select scms_db.GetStoreIdByUserName(?) as storeId",
+      [username]
+    );
+    let result;
+    if (truckCoo[0]?.length > 0) {
+      result = { sucess: true, storeId: truckCoo[0] };
+    } else {
+      result = { sucess: true, err: "No such item Found !" };
+    }
+    //const result = { sucess: true, customer: customer[0] };
+    return result;
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+}
+
 export async function getTruckCooByUserName(username) {
   try {
     const truckCoo = await pool.query(

@@ -3,6 +3,7 @@ import { pool } from "../database/database.js";
 import { getAllNewOrdersWithProdutsAndNetCapacity } from "../database/orderData.js";
 import {
   getCooByUserName,
+  getStoreIdCooByUserName,
   getTruckCooByUserName,
 } from "../database/CoordinaterData.js";
 import { getAllTrainTokenDetails } from "../database/TrainTokenData.js";
@@ -92,6 +93,24 @@ router.get("/getTruckCoo/:username", async (req, res) => {
   if (result.sucess) {
     if (result.truckCoo?.length > 0) {
       res.status(200).json({ sucess: true, coordinater: result.truckCoo });
+    } else {
+      res
+        .status(200)
+        .json({ sucess: false, message: "No Such Co-ordinater -- " });
+    }
+  } else {
+    res.status(404).json({ message: "Not found" });
+  }
+});
+router.get("/getStoreId/:username", async (req, res) => {
+  const result = await getStoreIdCooByUserName(req.params.username);
+  //   res.json(result);
+  console.log(result);
+  if (result.sucess) {
+    if (result.storeId?.length > 0) {
+      res
+        .status(200)
+        .json({ sucess: true, storeId: result.storeId[0].storeId });
     } else {
       res
         .status(200)
