@@ -1,5 +1,7 @@
 import { pool } from "./database.js";
 
+import bcrypt from "bcrypt";
+
 export async function getAllCustomers() {
   try {
     const customers = await pool.query("SELECT * FROM customer");
@@ -35,8 +37,11 @@ export async function addCustomerImage() {}
 
 export async function addCustomer(customer) {
   try {
+    // Hash the customer's password
+    const hashedPassword = await bcrypt.hash(customer.password, 10);
+
     const query =
-      "INSERT INTO customer (customer_id, first_name, last_name, address, phone_number, email, DOB, type, password) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      "INSERT INTO customer (customer_id, first_name, last_name, address, phone_number, email, DOB, type, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     const result = await pool.query(query, [
       customer.customer_id,
       customer.firstName,
@@ -46,32 +51,37 @@ export async function addCustomer(customer) {
       customer.email,
       customer.date_birth,
       customer.customer_type,
-      customer.password,
+      hashedPassword, // Store the hashed password
     ]);
+
     return { sucess: true, data: result };
   } catch (err) {
-    return { sucess: false, err: err };
+    return { sucess: false, error: err };
   }
 }
 
+// login customer ------------------------------
+
 export async function loginCustomer(customer_id, password) {
   try {
-    const query = "SELECT password FROM customer WHERE customer_id = ?";
+    const query =
+      "SELECT customer_id, password FROM customer WHERE customer_id = ?";
     const result = await pool.query(query, [customer_id]);
+
     if (result[0][0]) {
-      if (result[0][0].password === password) {
+      const hashedPassword = result[0][0].password;
+
+      // Compare the hashed password with the provided password
+      const passwordMatch = await bcrypt.compare(password, hashedPassword);
+
+      if (passwordMatch) {
         const query =
           "SELECT * FROM customer WHERE customer_id = ? AND password = ?";
-        const result = await pool.query(query, [customer_id, password]);
-        // console.log({
-        //   sucess: true,
-        //   customer: result[0][0],
-        //   message: "login successfull",
-        // });
+        const result = await pool.query(query, [customer_id, hashedPassword]);
         return {
           sucess: true,
           customer: result[0][0],
-          message: "Login Sucessfull -",
+          message: "Login Successful",
         };
       } else {
         return { sucess: false, message: "Invalid password" };
@@ -80,11 +90,10 @@ export async function loginCustomer(customer_id, password) {
       return { sucess: false, message: "Invalid customer id" };
     }
   } catch (err) {
-    const response = {
+    return {
       sucess: false,
-      err: err,
+      error: err,
       message: "Invalid username or password",
     };
-    return response;
   }
 }
