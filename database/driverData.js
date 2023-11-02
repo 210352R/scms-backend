@@ -100,6 +100,7 @@ export async function getDriverIdsForSuitable(date, time, tripTime, store_id) {
       );
     }
     if (!outputDriverId_1 && outputDriverId_2) {
+      console.log("llbgigj ------------- ----------------------");
       result = await connection.query(
         "SELECT userName FROM getdriverdata where store_id = ? AND userName NOT IN (?) AND userName NOT IN (select driver_id from WeeklyWorkHours_drivers where year = ? AND week_number = ?  AND total_work_hours >= (40-?))",
         [store_id, outputDriverId_2, year, weekNumber, tripTime]

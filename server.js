@@ -248,7 +248,7 @@ pool
 // const res = await getItemsWithMostSales(2023);
 // console.log("Newhguioa : ", res);
 
-const res = await getADriverIdsForSuitable("2023-10-03", "10:00:00", 2, "S001");
+const res = await getDriverIdsForSuitable("2023-11-24", "10:00:00", 2, "S002");
 
 console.log("Net ", res);
 

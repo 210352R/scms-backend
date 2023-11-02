@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 
 export async function getAllCustomers() {
   try {
-    const customers = await pool.query("SELECT * FROM customer");
+    const customers = await pool.query("SELECT * FROM customer_details");
 
     const reult = { sucess: true, customers: customers[0] };
 
@@ -17,7 +17,7 @@ export async function getAllCustomers() {
 export async function getCustomerById(id) {
   try {
     const customer = await pool.query(
-      "SELECT * FROM customer WHERE customer_id = ?",
+      "SELECT * FROM customer_details WHERE customer_id = ?",
       [id]
     );
     let result;

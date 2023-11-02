@@ -54,6 +54,24 @@ export async function getCooByUserName(username) {
   }
 }
 
+export async function getCoo() {
+  try {
+    const customer = await pool.query(
+      "select * from train_coordinator_details "
+    );
+    let result;
+    if (customer[0]?.length > 0) {
+      result = { sucess: true, customer: customer[0] };
+    } else {
+      result = { sucess: true, err: "No such item Found !" };
+    }
+    //const result = { sucess: true, customer: customer[0] };
+    return result;
+  } catch (err) {
+    return { sucess: false, err: err };
+  }
+}
+
 export async function getStoreIdCooByUserName(username) {
   try {
     const truckCoo = await pool.query(

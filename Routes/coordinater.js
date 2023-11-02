@@ -2,6 +2,7 @@ import express from "express";
 import { pool } from "../database/database.js";
 import { getAllNewOrdersWithProdutsAndNetCapacity } from "../database/orderData.js";
 import {
+  getCoo,
   getCooByUserName,
   getStoreIdCooByUserName,
   getTruckCooByUserName,
@@ -34,6 +35,23 @@ router.get("/getAllOrdersWithCapacity", async (req, res) => {
 
 router.get("/get/:username", async (req, res) => {
   const result = await getCooByUserName(req.params.username);
+  //   res.json(result);
+  //   console.log(result);
+  if (result.sucess) {
+    if (result.customer?.length > 0) {
+      res.status(200).json({ sucess: true, coordinater: result.customer });
+    } else {
+      res
+        .status(200)
+        .json({ sucess: false, message: "No Such Co-ordinater -- " });
+    }
+  } else {
+    res.status(404).json({ message: "Not found" });
+  }
+});
+
+router.get("/get", async (req, res) => {
+  const result = await getCoo();
   //   res.json(result);
   //   console.log(result);
   if (result.sucess) {
