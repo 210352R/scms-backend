@@ -66,36 +66,6 @@ pool
     console.error("Error connecting to the mysql database:", err.message);
   });
 
-// methods ---
-
-// const productList = [
-//   {
-//     product_id: "P006",
-//     quantity: 5,
-//   },
-//   {
-//     product_id: "P004",
-//     quantity: 10,
-//   },
-//   {
-//     product_id: "P007",
-//     quantity: 8,
-//   },
-// ];
-// const order = {
-//   customer_id: "Cust036",
-//   delivery_address: "Horana",
-//   route_id: "R006",
-//   state: "new",
-//   products: productList,
-// };
-// getAllTrainDetails()
-//   .then((res) => {
-//     console.log(res);
-//   })
-//   .catch((err) => {
-//     console.log(err);
-//   });
 
 const port = process.env.PORT || 8000;
 // Set Port to work as server ---
